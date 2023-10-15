@@ -131,6 +131,42 @@ function rgbToColorName(r, g, b) {
     return closestColor;
 }
 
+function rgbToLab(red, green, blue) {
+    // Step 1: Convert RGB to range 0-1
+    red /= 255;
+    green /= 255;
+    blue /= 255;
+
+    // Step 2: Convert RGB to XYZ
+    var r = (red > 0.04045) ? Math.pow((red + 0.055) / 1.055, 2.4) : red / 12.92;
+    var g = (green > 0.04045) ? Math.pow((green + 0.055) / 1.055, 2.4) : green / 12.92;
+    var b = (blue > 0.04045) ? Math.pow((blue + 0.055) / 1.055, 2.4) : blue / 12.92;
+
+    var X = r * 0.4124564 + g * 0.3575761 + b * 0.1804375;
+    var Y = r * 0.2126729 + g * 0.7151522 + b * 0.0721750;
+    var Z = r * 0.0193339 + g * 0.1191920 + b * 0.9503041;
+
+    X = X * 100;
+    Y = Y * 100;
+    Z = Z * 100;
+
+    // Step 3: Convert XYZ to Lab
+    X /= 95.047;
+    Y /= 100.000;
+    Z /= 108.883;
+
+    var fx = (X > 0.008856) ? Math.pow(X, 1/3) : (903.3 * X + 16) / 116;
+    var fy = (Y > 0.008856) ? Math.pow(Y, 1/3) : (903.3 * Y + 16) / 116;
+    var fz = (Z > 0.008856) ? Math.pow(Z, 1/3) : (903.3 * Z + 16) / 116;
+
+    var L = (116 * fy) - 16;
+    var a = 500 * (fx - fy);
+    var bLab = 200 * (fy - fz);
+
+    return [L, a, bLab];
+}
+
+
 video.addEventListener('play', () => {
     const canvas = document.getElementById('face-detection');
     const displaySize = { width: video.width, height: video.height };
@@ -167,6 +203,8 @@ video.addEventListener('play', () => {
             colorContext.strokeStyle = 'yellow';  // or any color you prefer for the box
             colorContext.strokeRect(colorRegion.x, colorRegion.y, colorRegion.width, colorRegion.height);
         }
+
+        
 
         if (resizedDetections[0] && resizedDetections[0].expressions) {
             const emotion = Object.keys(resizedDetections[0].expressions).reduce((a, b) => 
