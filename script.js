@@ -18,7 +18,7 @@ function startVideo() {
 
 function getAverageColor(src, region) {
     const colorCanvas = document.getElementById('color-detection');
-    const context = colorCanvas.getContext('2d');
+    const context = colorCanvas.getContext('2d', { willReadFrequently: true });
     context.drawImage(src, 0, 0, src.width, src.height);
 
     // Ensuring the values are valid
@@ -143,7 +143,7 @@ video.addEventListener('play', () => {
     setInterval(async () => {
         const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceExpressions();
         const resizedDetections = faceapi.resizeResults(detections, displaySize);
-        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+        canvas.getContext('2d', { willReadFrequently: true }).clearRect(0, 0, canvas.width, canvas.height);
         
         faceapi.draw.drawDetections(canvas, resizedDetections);
         faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
@@ -163,7 +163,7 @@ video.addEventListener('play', () => {
             document.getElementById('colorDetection').innerText = `${avgColorName}`;
             // document.getElementById('colorDetection').style.backgroundColor = avgColorRgb;
 
-            const colorContext = document.getElementById('color-detection').getContext('2d');
+            const colorContext = document.getElementById('color-detection').getContext('2d', { willReadFrequently: true });
             colorContext.strokeStyle = 'yellow';  // or any color you prefer for the box
             colorContext.strokeRect(colorRegion.x, colorRegion.y, colorRegion.width, colorRegion.height);
         }
