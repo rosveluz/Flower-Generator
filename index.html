@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bad Flowers [Coconut Studios x &lt;cnvs&gt;] </title>
+    <link rel="icon" href="img/SVG/cnvs-logomark-blk.svg" type="image/png">
+    <link rel="stylesheet" href="style.css">
+    <script defer src="/face-api.js-master/dist/face-api.min.js"></script>
+    <script defer src="script.js"></script>
+
+</head>
+<body>
+    <section class="main-container">
+        <div>
+            <img class="logo-1" src="img/cnvs-logomark-wht.svg" alt="<cnvs> logo">
+        </div>
+
+        <div class="canvas-container">
+
+            <div id="video-container">
+                <div id="faceExpression"></div>
+
+                <div id="face-container">
+                    <canvas id="face-detection"></canvas>
+                    <video id="video" width="640" height="480" autoplay muted></video>
+                </div>
+                
+                <div id="colorDetection"></div>
+            </div>
+           
+            <canvas id="myCanvas"></canvas>
+
+            <button id="printButton">Send Generated Flower</button>
+
+        </div>
+
+        <div>
+            <img class="logo-2" src="img/coconut-studios_logo.jpg" alt="Coconut Studios Logo">
+        </div>
+    </section>
+
+</body>
+</html>
