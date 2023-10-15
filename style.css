@@ -77,6 +77,16 @@ body {
     width: 640px;
     height: 480px;
     border-radius: 50%;
+    z-index: 3;  /* Ensure the face detection canvas is above the video */
+}
+
+#color-detection {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 640px;
+    height: 480px;
+    border-radius: 50%;
     z-index: 2;  /* Ensure the face detection canvas is above the video */
 }
 
@@ -90,7 +100,8 @@ body {
 }
 
 #face-container > #video, 
-#face-container > #face-detection {
+#face-container > #face-detection,
+#face-container > #color-detection {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -101,27 +112,24 @@ body {
     border-radius: 50%;  /* To make sure the video and canvas also have rounded corners to fit in the circle container */
 }
 
-
-canvas {
-    position: absolute; /* Absolute positioning for the faceAPI canvas */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%; /* To match the border-radius of the video */
-}
-
 #faceExpression {
     width: 80px;
     align-self: center;
     text-align: center;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1.2rem;
 }
 
 #colorDetection {
     width: 80px;
     align-self: center ;
     text-align: center;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1.2rem;
 }
+
 
 #printButton {
     margin: 0 auto;
@@ -149,9 +157,24 @@ canvas {
         height: auto;
     }
 
-    #video {
+    #face-container {
         width: 80px;
         height: 80px;
+    }
+    
+    #face-detection {
+        width: 480px;
+        height: 360px;
+    }
+
+    #color-detection {
+        width: 480px;
+        height: 360px;
+    }
+    
+    #video {
+        width: 480px;
+        height: 360px;
     }
 
     #printButton {
