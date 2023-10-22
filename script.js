@@ -9,12 +9,16 @@ Promise.all([
 ]).then(startVideo);
 
 function startVideo() {
-  navigator.getUserMedia(
-    { video: {} },
-    stream => video.srcObject = stream,
-    err => console.error(err)
-  );
+    navigator.mediaDevices.getUserMedia({ video: {} })
+      .then(stream => {
+        video.srcObject = stream;
+        video.play();
+        // Initialize the flower canvas after ensuring the video has started
+        initCanvas2D();
+      })
+      .catch(err => console.error(err));
 }
+
 
 function getAverageColor(src, region) {
     const colorCanvas = document.getElementById('color-detection');
@@ -168,6 +172,7 @@ function rgbToLab(red, green, blue) {
 
 
 video.addEventListener('play', () => {
+    console.log("Video is playing");
     const canvas = document.getElementById('face-detection');
     const displaySize = { width: video.width, height: video.height };
     faceapi.matchDimensions(canvas, displaySize);
@@ -184,28 +189,26 @@ video.addEventListener('play', () => {
         faceapi.draw.drawDetections(canvas, resizedDetections);
         faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
         
-        // Color detection logic
+        // Adjusted colorRegion logic for better face-shirt color distinction
         if (resizedDetections[0]) {
-            const faceBox = resizedDetections[0].detection.box;
-            const colorRegion = {
-                x: faceBox.x / 1.5,
-                y: faceBox.y + faceBox.height, // this should give you the y-coordinate of the bottom of the face box
-                width: faceBox.width * 2,
-                height: faceBox.height * 1.2 // taking 30% of the face height as our region of interest below the face
-            };
-            
-            const avgColorRgb = getAverageColor(video, colorRegion);
-            const avgColorName = rgbToColorName(...avgColorRgb.split('(')[1].split(')')[0].split(',').map(val => +val.trim()));
-            document.getElementById('colorDetection').innerText = `${avgColorName}`;
-            // document.getElementById('colorDetection').style.backgroundColor = avgColorRgb;
+        const faceBox = resizedDetections[0].detection.box;
 
-            const colorContext = document.getElementById('color-detection').getContext('2d', { willReadFrequently: true });
-            colorContext.strokeStyle = 'yellow';  // or any color you prefer for the box
-            colorContext.strokeRect(colorRegion.x, colorRegion.y, colorRegion.width, colorRegion.height);
+        const colorRegion = {
+            x: faceBox.x / 1.5,
+            y: faceBox.y + faceBox.height, // this should give you the y-coordinate of the bottom of the face box
+            width: faceBox.width * 2,
+            height: faceBox.height * 1.2 // taking 30% of the face height as our region of interest below the face
+        };
+
+        const avgColorRgb = getAverageColor(video, colorRegion);
+        const avgColorName = rgbToColorName(...avgColorRgb.split('(')[1].split(')')[0].split(',').map(val => +val.trim()));
+        document.getElementById('colorDetection').innerText = `${avgColorName}`;
+
+        const colorContext = document.getElementById('color-detection').getContext('2d', { willReadFrequently: true });
+        colorContext.strokeStyle = 'yellow'; 
+        colorContext.strokeRect(colorRegion.x, colorRegion.y, colorRegion.width, colorRegion.height);
         }
-
-        
-
+  
         if (resizedDetections[0] && resizedDetections[0].expressions) {
             const emotion = Object.keys(resizedDetections[0].expressions).reduce((a, b) => 
                 resizedDetections[0].expressions[a] > resizedDetections[0].expressions[b] ? a : b
@@ -215,3 +218,4 @@ video.addEventListener('play', () => {
         
     }, 100);
 });
+
