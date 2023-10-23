@@ -37,7 +37,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 case 'surprised':
                     petalsCount = Math.floor(Math.random() * 17) + 8;  // Random value between 8 and 24
                     break;
-
             }
 
             drawFlower(petalsCount, maxExpression);
@@ -57,7 +56,7 @@ function drawFlower(petalsCount, expression) {
     drawScene();
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
-    const petalLength = 120;
+    const petalLength = 180;
 
     switch (expression) {
         case "happy":
@@ -75,24 +74,58 @@ function drawFlower(petalsCount, expression) {
 
     for (let i = 0; i < petalsCount; i++) {
         const angle = (i * 360 / petalsCount) * (Math.PI / 180);
-        const petalTipX = centerX + petalLength * Math.cos(angle);
-        const petalTipY = centerY + petalLength * Math.sin(angle);
+        
+        const baseWidth = petalLength * 0.3; // The width at the base of the petal
+        const tipWidth = petalLength * 0.1;  // The width at the tip of the petal
 
-        const baseLeftX = centerX + (petalLength - 20) * Math.cos(angle - Math.PI / petalsCount);
-        const baseLeftY = centerY + (petalLength - 20) * Math.sin(angle - Math.PI / petalsCount);
+        const midX = centerX + 0.5 * petalLength * Math.cos(angle);
+        const midY = centerY + 0.5 * petalLength * Math.sin(angle);
 
-        const baseRightX = centerX + (petalLength - 20) * Math.cos(angle + Math.PI / petalsCount);
-        const baseRightY = centerY + (petalLength - 20) * Math.sin(angle + Math.PI / petalsCount);
-
-        // Draw petal using Bezier curves for a smoother appearance
         ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.bezierCurveTo(centerX, centerY, baseLeftX, baseLeftY, petalTipX, petalTipY);
-        ctx.bezierCurveTo(petalTipX, petalTipY, baseRightX, baseRightY, centerX, centerY);
+
+        // Upper half of the petal
+        ctx.ellipse(midX, midY, baseWidth, tipWidth, angle, Math.PI, 2 * Math.PI, false);
+
+        // Lower half of the petal
+        ctx.ellipse(midX, midY, baseWidth, tipWidth, angle, 0, Math.PI, false);
+
         ctx.closePath();
         ctx.fill();
     }
 
     console.log("Drawing flower with", petalsCount, "petals and expression", expression);
 }
+
+function drawSingleOvalPetal() {
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+
+    const angle = 0; // just for testing a single petal
+    const petalLength = 180;
+    
+    const baseWidth = petalLength * 0.7; // The width at the base of the petal
+    const tipWidth = petalLength * 0.1;  // The width at the tip of the petal
+
+    const midX = centerX + 0.5 * petalLength * Math.cos(angle);
+    const midY = centerY + 0.5 * petalLength * Math.sin(angle);
+
+    const tipX = centerX + petalLength * Math.cos(angle);
+    const tipY = centerY + petalLength * Math.sin(angle);
+
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+
+    // Upper half of the petal
+    ctx.ellipse(midX, midY, baseWidth, tipWidth, angle, Math.PI, 2 * Math.PI, false);
+
+    // Lower half of the petal
+    ctx.ellipse(midX, midY, baseWidth, tipWidth, angle, 0, Math.PI, false);
+
+    ctx.closePath();
+    ctx.fill();
+}
+
+drawSingleOvalPetal();
+
+
 
