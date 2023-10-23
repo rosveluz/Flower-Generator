@@ -60,16 +60,16 @@ function drawFlower(petalsCount, expression) {
 
     switch (expression) {
         case "happy":
-            ctx.fillStyle = "yellow";
+            ctx.fillStyle = "rgba(255, 255, 0, 0.4)";
             break;
         case "sad":
-            ctx.fillStyle = "blue";
+            ctx.fillStyle = "rgba(255, 0, 255, 0.4)";
             break;
         case "angry":
-            ctx.fillStyle = "red";
+            ctx.fillStyle = "rgba(255, 0, 0, 0.4)";
             break;
         default:
-            ctx.fillStyle = "gray";
+            ctx.fillStyle = "rgba(0, 255, 0, 0.4)";
     }
 
     for (let i = 0; i < petalsCount; i++) {
