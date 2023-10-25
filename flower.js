@@ -1,6 +1,9 @@
 const canvas = document.getElementById('myCanvas');
 const ctx = canvas.getContext('2d');
 
+import { getAverageColor } from './utils.js';
+
+
 let previousExpression = null;
 
 canvas.width = canvas.width;
@@ -34,8 +37,8 @@ function getInverseColor(color) {
     return `rgb(${255 - rgb[0]}, ${255 - rgb[1]}, ${255 - rgb[2]})`;
 }
 
-function drawPetal(ctx, canvas, avgColor, angle, maxPetals) {
-    ctx.globalCompositeOperation = 'multiply';
+function drawPetal(ctx, canvas, avgColor, strokeColor, angle, maxPetals) {
+    ctx.globalCompositeOperation = 'screen';
 
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
@@ -51,7 +54,7 @@ function drawPetal(ctx, canvas, avgColor, angle, maxPetals) {
     const endY = centerY + endPointDistance * Math.cos(angle);
 
     ctx.fillStyle = avgColor;
-    ctx.strokeStyle = getInverseColor(avgColor);
+    ctx.strokeStyle = strokeColor;
     ctx.lineWidth = 16;
 
     ctx.beginPath();
@@ -80,7 +83,9 @@ function animate(currentTime) {
 
     if (currentTime - lastTime >= animationDelay) {
         if (number < maxPetals) {
-            angle = drawPetal(ctx, canvas, avgColor, angle, maxPetals);
+            const harmonyColors = computeQuadraticHarmony(avgColor);
+            const strokeColor = harmonyColors.harmony2; // Using harmony2 as an example for the stroke
+            angle = drawPetal(ctx, canvas, avgColor, strokeColor, angle, maxPetals);
             number++;
             lastTime = currentTime;
         } else {
@@ -115,9 +120,56 @@ export function startFlowerAnimation(avgColorRgb, expression) {
         angle = offsetAngle;  // Start drawing from this offset
 
         lastTime = 0;
+        animationStarted = false;
+        number = 0;
+        angle = 0;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
         animationStarted = true;
         requestAnimationFrame(animate);
     }
 
     previousExpression = expression;
+
+    // Call updateContainerColor right after avgColor has been updated.
+    updateContainerColor();
 }
+
+// Placeholder for rgbToLab function
+function rgbToLab(r, g, b) {
+    // TODO: Implement or integrate a proper function to convert RGB to Lab.
+    return [r, g, b]; 
+}
+
+function computeQuadraticHarmony(rgbColor) {
+    let [L, a, b] = rgbToLab(...rgbColor.match(/\d+/g).map(Number));
+
+    // Slight shifts to derive the two harmonious colors
+    let harmony1 = [L, a + 10, b];
+    let harmony2 = [L, a, b + 10];
+
+    // Convert harmonious Lab colors back to RGB. This is a simplistic placeholder.
+    // TODO: Integrate a function or library to convert Lab back to RGB.
+    harmony1 = `rgb(${harmony1[0]}, ${harmony1[1]}, ${harmony1[2]})`;
+    harmony2 = `rgb(${harmony2[0]}, ${harmony2[1]}, ${harmony2[2]})`;
+
+    return {
+        main: rgbColor,
+        harmony1,
+        harmony2
+    };
+}
+
+function updateContainerColor() {
+    if (!avgColor) {
+        console.error("avgColor is not defined or set!");
+        return;
+    }
+    const harmony = computeQuadraticHarmony(avgColor);
+    console.log(harmony);
+    const mainContainer = document.querySelector(".main-container");
+    mainContainer.style.backgroundColor = harmony.harmony1; // Using harmony1 as an example
+}
+
+// Whenever avgColor changes, you can call the updateContainerColor function
+// updateContainerColor();
