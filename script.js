@@ -16,17 +16,17 @@ Promise.all([
 ]).then(startVideo);
 
 function startVideo() {
-    navigator.mediaDevices.getUserMedia({ video: {} })
-      .then(stream => {
-        video.srcObject = stream;
-        video.play();
-      })
-      .catch(err => console.error(err));
+    try {
+        navigator.mediaDevices.getUserMedia({ video: {} })
+            .then(stream => {
+                video.srcObject = stream;
+                video.play();
+            })
+            .catch(err => console.error("Error in getUserMedia:", err));
+    } catch (err) {
+        console.error("Error in startVideo function:", err);
+    }
 }
-
-
-
-
 
 video.addEventListener('play', () => {
     console.log("Video is playing");

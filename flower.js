@@ -1,5 +1,6 @@
 const canvas = document.getElementById('myCanvas');
 const ctx = canvas.getContext('2d');
+const GLOBAL_DELAY = 500;  // Delay in milliseconds (e.g., 500ms or 0.5 seconds)
 
 import { getAverageColor } from './utils.js';
 
@@ -32,12 +33,29 @@ function getPetalCount(expression) {
     }
 }
 
+function getLineWidth(expression) {
+    switch (expression) {
+        case 'sad':
+        case 'angry':
+        case 'disgusted':
+            return 32;
+        case 'neutral':
+            return 16;
+        case 'happy':
+        case 'surprised':
+            return 4;
+        default:
+            return 8; // Default line width (or whatever value you think is best)
+    }
+}
+
+
 function getInverseColor(color) {
     let rgb = color.match(/\d+/g);
     return `rgb(${255 - rgb[0]}, ${255 - rgb[1]}, ${255 - rgb[2]})`;
 }
 
-function drawPetal(ctx, canvas, avgColor, strokeColor, angle, maxPetals) {
+function drawPetal(ctx, canvas, avgColor, strokeColor, angle, maxPetals, expression) {
     ctx.globalCompositeOperation = 'screen';
 
     const centerX = canvas.width / 2;
@@ -55,7 +73,7 @@ function drawPetal(ctx, canvas, avgColor, strokeColor, angle, maxPetals) {
 
     ctx.fillStyle = avgColor;
     ctx.strokeStyle = strokeColor;
-    ctx.lineWidth = 16;
+    ctx.lineWidth = getLineWidth(expression);
 
     ctx.beginPath();
     ctx.moveTo(centerX, centerY);
@@ -69,7 +87,7 @@ function drawPetal(ctx, canvas, avgColor, strokeColor, angle, maxPetals) {
 }
 
 let maxPetals = 8;
-let animationDelay = 200;
+let animationDelay = 50;
 let lastTime = 0;
 
 function animate(currentTime) {
@@ -85,7 +103,7 @@ function animate(currentTime) {
         if (number < maxPetals) {
             const harmonyColors = computeQuadraticHarmony(avgColor);
             const strokeColor = harmonyColors.harmony2; // Using harmony2 as an example for the stroke
-            angle = drawPetal(ctx, canvas, avgColor, strokeColor, angle, maxPetals);
+            angle = drawPetal(ctx, canvas, avgColor, strokeColor, angle, maxPetals, previousExpression);
             number++;
             lastTime = currentTime;
         } else {
@@ -100,40 +118,42 @@ function animate(currentTime) {
 
 export function startFlowerAnimation(avgColorRgb, expression) {
     console.log("About to start flower animation with expression:", expression);
+    
+    setTimeout(() => {
+        avgColor = avgColorRgb;
 
-    avgColor = avgColorRgb;
+        if (expression === previousExpression) {
+            return;
+        }
 
-    if (expression === previousExpression) {
-        return;
-    }
+        if (!animationStarted) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            number = 0;
+            maxPetals = getPetalCount(expression);
 
-    if (!animationStarted) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        number = 0;
-        maxPetals = getPetalCount(expression);
+            console.log("Number of petals to draw:", maxPetals);
 
-        console.log("Number of petals to draw:", maxPetals); // Logging maxPetals here after determining it
+            let angularSpacing = (2 * Math.PI) / maxPetals;
+            let offsetAngle = (maxPetals % 2 === 1) ? angularSpacing / 2 : 0;
 
-        let angularSpacing = (2 * Math.PI) / maxPetals;
-        let offsetAngle = (maxPetals % 2 === 1) ? angularSpacing / 2 : 0;
+            angle = offsetAngle;
+            lastTime = 0;
+            animationStarted = false;
+            number = 0;
+            angle = 0;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        angle = offsetAngle;  // Start drawing from this offset
+            animationStarted = true;
+            requestAnimationFrame(animate);
+        }
 
-        lastTime = 0;
-        animationStarted = false;
-        number = 0;
-        angle = 0;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        previousExpression = expression;
 
-        animationStarted = true;
-        requestAnimationFrame(animate);
-    }
-
-    previousExpression = expression;
-
-    // Call updateContainerColor right after avgColor has been updated.
-    updateContainerColor();
+        // Call updateContainerColor right after avgColor has been updated.
+        updateContainerColor();
+    }, GLOBAL_DELAY);
 }
+
 
 // Placeholder for rgbToLab function
 function rgbToLab(r, g, b) {
