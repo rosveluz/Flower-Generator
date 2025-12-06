@@ -11,6 +11,7 @@
     <!-- Make sure to declare script.js as a module because it's importing from utils.js -->
     <script type="module" src="script.js"></script>
     <script type="module" src="flower.js"></script>
+    <script type="module" src="capture.js"></script>
 </head>
     
 <body>
@@ -37,19 +38,31 @@
 
             <section class="button-container">
 
-                <button id="counterButton"><div id="button-text">Capture Timer</div><div id="timer"></div></button>
-                <button id="printButton">Send Generated Flower</button>
+                <button id="counterButton">
+                    <div id="button-text">Capture Timer</div>
+                    <div id="timer"></div>
+                </button>
 
             </section>
-
-           
 
         </div>
 
         <div>
-            <img class="logo-2" src="img/coconut-studios_logo.jpg" alt="Coconut Studios Logo">
+            <img class="logo-2" src="img/cnvs-logomark-wht.svg" alt="A+ Art Logo">
         </div>
     </section>
+
+    <!-- Modal -->
+    <div id="imageModal" class="modal hidden">
+    <div class="modal-content">
+        <button class="close-modal" id="closeModal">&times;</button>
+        <img id="modalPreview" class="preview-image" src="" alt="Preview">
+        <form class="email-form" id="emailForm">
+        <input type="email" id="emailInput" placeholder="Enter your email" required />
+        <button type="submit">Send Image</button>
+        </form>
+    </div>
+    </div>
 
 </body>
 </html>

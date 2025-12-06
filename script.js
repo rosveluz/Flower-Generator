@@ -1,12 +1,11 @@
-/* start of script.js */
 /* script.js */
 import { startFlowerAnimation } from './flower.js';
 
 const video = document.getElementById('video');
-
 import { getAverageColor, rgbToColorName, rgbToLab } from './utils.js';
 
 let detectedExpression = 'neutral';
+let detectionInterval;
 
 Promise.all([
   faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
@@ -22,10 +21,19 @@ function startVideo() {
                 video.srcObject = stream;
                 video.play();
             })
-            .catch(err => console.error("Error in getUserMedia:", err));
+            .catch(err => {
+                console.error("Error in getUserMedia:", err);
+                stopVideoStream(video);
+            });
     } catch (err) {
         console.error("Error in startVideo function:", err);
     }
+}
+
+function stopVideoStream(videoElem) {
+    let tracks = videoElem.srcObject.getTracks();
+    tracks.forEach(track => track.stop());
+    videoElem.srcObject = null;
 }
 
 video.addEventListener('play', () => {
@@ -37,8 +45,7 @@ video.addEventListener('play', () => {
     
     const faceExpressionElement = document.getElementById('faceExpression');
     
-
-    setInterval(async () => {
+    detectionInterval = setInterval(async () => {
         const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceExpressions();
         const resizedDetections = faceapi.resizeResults(detections, displaySize);
         canvas.getContext('2d', { willReadFrequently: true }).clearRect(0, 0, canvas.width, canvas.height);
@@ -46,47 +53,44 @@ video.addEventListener('play', () => {
         faceapi.draw.drawDetections(canvas, resizedDetections);
         faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
         
-        // Adjusted colorRegion logic for better face-shirt color distinction
         if (resizedDetections[0]) {
-        const faceBox = resizedDetections[0].detection.box;
+            const faceBox = resizedDetections[0].detection.box;
 
-        if (resizedDetections[0] && resizedDetections[0].expressions) {
-            const emotion = Object.keys(resizedDetections[0].expressions).reduce((a, b) => 
-                resizedDetections[0].expressions[a] > resizedDetections[0].expressions[b] ? a : b
-            );
-            faceExpressionElement.innerText = emotion;
-            detectedExpression = emotion; // Store the detected expression
+            if (resizedDetections[0] && resizedDetections[0].expressions) {
+                const emotion = Object.keys(resizedDetections[0].expressions).reduce((a, b) => 
+                    resizedDetections[0].expressions[a] > resizedDetections[0].expressions[b] ? a : b
+                );
+                faceExpressionElement.innerText = emotion;
+                detectedExpression = emotion;
+            }
+
+            const colorRegion = {
+                x: faceBox.x / 1.5,
+                y: faceBox.y + faceBox.height,
+                width: faceBox.width * 2,
+                height: faceBox.height * 1.2
+            };
+
+            const avgColorRgb = getAverageColor(video, colorRegion);
+            
+            if (detectedExpression !== 'neutral') {
+                startFlowerAnimation(avgColorRgb, detectedExpression);
+            }
+
+            const avgColorName = rgbToColorName(...avgColorRgb.split('(')[1].split(')')[0].split(',').map(val => +val.trim()));
+            document.getElementById('colorDetection').innerText = `${avgColorName}`;
+
+            const colorContext = document.getElementById('color-detection').getContext('2d', { willReadFrequently: true });
+            colorContext.strokeStyle = 'yellow'; 
+            colorContext.strokeRect(colorRegion.x, colorRegion.y, colorRegion.width, colorRegion.height);
         }
-
-        const colorRegion = {
-            x: faceBox.x / 1.5,
-            y: faceBox.y + faceBox.height, // this should give you the y-coordinate of the bottom of the face box
-            width: faceBox.width * 2,
-            height: faceBox.height * 1.2 // taking 30% of the face height as our region of interest below the face
-        };
-
-        const avgColorRgb = getAverageColor(video, colorRegion);
-        
-        if (detectedExpression !== 'neutral') {
-            startFlowerAnimation(avgColorRgb, detectedExpression); // <-- Start the flower animation
-        }
-
-        const avgColorName = rgbToColorName(...avgColorRgb.split('(')[1].split(')')[0].split(',').map(val => +val.trim()));
-        document.getElementById('colorDetection').innerText = `${avgColorName}`;
-
-        const colorContext = document.getElementById('color-detection').getContext('2d', { willReadFrequently: true });
-        colorContext.strokeStyle = 'yellow'; 
-        colorContext.strokeRect(colorRegion.x, colorRegion.y, colorRegion.width, colorRegion.height);
-        }
-  
-        if (resizedDetections[0] && resizedDetections[0].expressions) {
-            const emotion = Object.keys(resizedDetections[0].expressions).reduce((a, b) => 
-                resizedDetections[0].expressions[a] > resizedDetections[0].expressions[b] ? a : b
-            );
-            faceExpressionElement.innerText = emotion;
-        }
-        
-    }, 100);
+    }, 500);
 });
-/* end of script.js */
 
+video.addEventListener('ended', () => {
+    clearInterval(detectionInterval);
+});
+
+window.addEventListener('beforeunload', function() {
+    clearInterval(detectionInterval);
+});

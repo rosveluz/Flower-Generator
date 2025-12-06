@@ -1,3 +1,4 @@
+
 * {
     margin: 0;
     padding: 0;
@@ -17,24 +18,17 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+}
 
-    & .logo-1 {
-        width: 90px;
-        height: auto;
-    }
-
-    & .logo-2 {
-        width: 110px;
-        height: auto;
-        border-radius: 60px;
-    }
-
-    & :nth-child(2) {
-        align-self: center;
-    }
+.logo-1 {
+    width: 90px;
+    height: auto;
 }
 
 .logo-2 {
+    width: 110px;
+    height: auto;
+    border-radius: 60px;
     float: right;
 }
 
@@ -47,19 +41,17 @@ body {
 }
 
 #myCanvas {
-    width: 400px;  /* This will take 100% width of its parent */
-    height: 400px;   /* Reset the height */
- /* This will make it a square */
-    position: relative;  /* For potential child elements to be positioned inside of it */
+    width: 400px;
+    height: 400px;
+    position: relative;
     border-radius: 50%;
-    /* background-color: rgba(145, 145, 145, 0.067); */
 }
 
 #video-container {
-    position: relative; /* Relative positioning for the container */
+    position: relative;
     display: flex;
     gap: 32px;
-    overflow: hidden; /* Hide any overflowing content */
+    overflow: hidden;
 }
 
 #face-container {
@@ -71,48 +63,22 @@ body {
     z-index: 1;
 }
 
-#face-detection {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 640px;
-    height: 480px;
-    border-radius: 50%;
-    z-index: 3;  /* Ensure the face detection canvas is above the video */
-}
-
-#color-detection {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 640px;
-    height: 480px;
-    border-radius: 50%;
-    z-index: 2;  /* Ensure the face detection canvas is above the video */
-}
-
-#video {
-    width: 640px;
-    height: 480px;
-    border-radius: 50%;
-    background-color: red;
-    z-index: 1;
-}
-
-#face-container > #video, 
-#face-container > #face-detection,
-#face-container > #color-detection {
+#face-detection, #color-detection, #video {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 100%;  /* This will make it take the full width of the container */
-    height: 100%; /* This will make it take the full height of the container */
+    width: 100%;
+    height: 100%;
     transform: translate(-50%, -50%);
-    object-fit: cover;  /* This will ensure the video covers the whole area without distortion */
-    border-radius: 50%;  /* To make sure the video and canvas also have rounded corners to fit in the circle container */
+    object-fit: cover;
+    border-radius: 50%;
 }
 
-#faceExpression {
+#face-detection { z-index: 3; }
+#color-detection { z-index: 2; }
+#video { z-index: 1; }
+
+#faceExpression, #colorDetection {
     width: 80px;
     align-self: center;
     text-align: center;
@@ -120,16 +86,6 @@ body {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 1.2rem;
 }
-
-#colorDetection {
-    width: 80px;
-    align-self: center ;
-    text-align: center;
-    color: white;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 1.2rem;
-}
-
 
 .button-container > button {
     margin: 0 auto;
@@ -147,48 +103,131 @@ body {
     background: none;
     color: white;
     border: 2px solid white;
-    
+}
+
+/* Modal Styling */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    z-index: 999;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: white;
+    padding: 32px;
+    width: 100%;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border-radius: 12px;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.preview-image {
+  width: 100%;
+  height: auto;
+  max-height: 60vh; /* ✅ Prevent vertical overflow */
+  object-fit: contain;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.email-form {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
+.email-form input[type="email"] {
+    padding: 10px;
+    font-size: 16px;
+    width: 100%;
+    max-width: 300px;
+    box-sizing: border-box;
+}
+
+.email-form button {
+    padding: 10px 16px;
+    font-size: 16px;
+    cursor: pointer;
+    width: auto;
+}
+
+.close-modal {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 28px;
+    background: transparent;
+    border: none;
+    color: #333;
+    cursor: pointer;
+}
+
+/* Mobile tweaks */
+@media (max-width: 480px) {
+    .modal-content {
+        padding: 20px;
+        max-width: 95vw;
+        max-height: 90vh;
+    }
+
+    .close-modal {
+        font-size: 24px;
+    }
+
+    .email-form {
+        flex-direction: column;
+    }
+
+    .email-form input[type="email"],
+    .email-form button {
+        width: 100%;
+    }
 }
 
 @media (max-width: 760px) {
-
     .main-container {
         padding: 12px;
     }
 
     .canvas-container {
-            width: 100%; 
-            max-width: 500px;
-            margin: 0 auto;
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
     }
 
-    .main-container .logo-1 {
-        width: 50px;
-        height: auto;
-    }
-    .main-container .logo-2 {
-        width: 65px;
-        height: auto;
-    }
+    .logo-1 { width: 50px; }
+    .logo-2 { width: 65px; }
 
     #face-container {
         width: 80px;
         height: 80px;
     }
-    
-    #face-detection {
-        width: 480px;
-        height: 360px;
-    }
 
-    #color-detection {
-        width: 480px;
-        height: 360px;
-    }
-    
-    #video {
-        width: 480px;
-        height: 360px;
+    /* ✅ Fix the child element sizes here */
+    #face-container > video,
+    #face-container > canvas {
+        width: 80px !important;
+        height: 80px !important;
     }
 
     #myCanvas {
@@ -200,3 +239,4 @@ body {
         padding: 8px 12px;
     }
 }
+
